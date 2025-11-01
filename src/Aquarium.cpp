@@ -9,7 +9,7 @@ string AquariumCreatureTypeToString(AquariumCreatureType t){
         case AquariumCreatureType::NPCreature:
             return "BaseFish";
         default:
-            return "UknownFish";
+            return "UnkownFish";
     }
 }
 
@@ -173,8 +173,49 @@ void Aquarium::update() {
     for (auto& creature : m_creatures) {
         creature->move();
     }
+
     this->Repopulate();
+
+    for (size_t i = 0; i < m_creatures.size(); ++i) {
+        for (size_t j = i + 1; j < m_creatures.size(); ++j) {
+            auto a = m_creatures[i];
+            auto b = m_creatures[j];
+
+            if (checkCollision(a, b)) {
+                
+                a->setDirection(-a->getDx(), -a->getDy());
+                b->setDirection(-b->getDx(), -b->getDy());
+
+                
+                float dx = a->getX() - b->getX();
+                float dy = a->getY() - b->getY();
+                float distance = std::sqrt(dx*dx + dy*dy);
+                if (distance != 0) {
+                    float overlap = (a->getCollisionRadius() + b->getCollisionRadius() - distance) / 2.0f;
+                    a->setX(a->getX() + dx/distance * overlap);
+                    a->setY(a->getY() + dy/distance * overlap);
+                    b->setX(b->getX() - dx/distance * overlap);
+                    b->setY(b->getY() - dy/distance * overlap);
+                }
+
+                
+                auto event = std::make_shared<GameEvent>(GameEventType::COLLISION, a, b);
+                
+                event->print();
+            }
+        }
+    }
 }
+
+
+
+void Creature::setDirection(float dx, float dy) {
+    m_dx = dx;
+    m_dy = dy;
+}
+void Creature::setX(float x) { m_x = x; }
+void Creature::setY(float y) { m_y = y; }
+
 
 void Aquarium::draw() const {
     for (const auto& creature : m_creatures) {
@@ -405,4 +446,17 @@ std::vector<AquariumCreatureType> Level_2::Repopulate() {
         }
     }
     return toRepopulate;
+}
+
+AquariumGameScene::AquariumGameScene(std::shared_ptr<PlayerCreature> player,
+                                     std::shared_ptr<Aquarium> aquarium,
+                                     string name)
+    : m_player(std::move(player)), m_aquarium(std::move(aquarium)), m_name(name)
+{
+    if (!m_ambientSound.load("sounds/underwater_loop.mp3")) {
+
+    }
+    m_ambientSound.setLoop(true);   
+    m_ambientSound.setVolume(0.5f); 
+    m_ambientSound.play();          
 }

@@ -46,7 +46,6 @@ class AquariumLevel : public GameLevel {
 
 class PlayerCreature : public Creature {
 public:
-
     PlayerCreature(float x, float y, int speed, std::shared_ptr<GameSprite> sprite);
     void move();
     void draw() const;
@@ -55,23 +54,23 @@ public:
     void setLives(int lives) { m_lives = lives; }
     void setDirection(float dx, float dy);
     float isXDirectionActive() { return m_dx != 0; }
-    float isYDirectionActive() {return m_dy != 0; }
+    float isYDirectionActive() { return m_dy != 0; }
     float getDx() { return m_dx; }
     float getDy() { return m_dy; }
 
-    int getScore()const { return m_score; }
+    int getScore() const { return m_score; }
     int getLives() const { return m_lives; }
     int getPower() const { return m_power; }
-    
-    void addToScore(int amount, int weight=1) { m_score += amount * weight; }
+
+    void addToScore(int amount, int weight = 1) { m_score += amount * weight; }
     void loseLife(int debounce);
     void increasePower(int value) { m_power += value; }
     void reduceDamageDebounce();
-    
+
 private:
     int m_score = 0;
     int m_lives = 3;
-    int m_power = 1; // mark current power lvl
+    int m_power = 1;         // current power lvl
     int m_damage_debounce = 0; // frames to wait after eating
 };
 
@@ -142,8 +141,8 @@ std::shared_ptr<GameEvent> DetectAquariumCollisions(std::shared_ptr<Aquarium> aq
 
 class AquariumGameScene : public GameScene {
     public:
-        AquariumGameScene(std::shared_ptr<PlayerCreature> player, std::shared_ptr<Aquarium> aquarium, string name)
-        : m_player(std::move(player)) , m_aquarium(std::move(aquarium)), m_name(name){}
+        AquariumGameScene(std::shared_ptr<PlayerCreature> player, std::shared_ptr<Aquarium> aquarium, string name);
+        
         std::shared_ptr<GameEvent> GetLastEvent(){return m_lastEvent;}
         void SetLastEvent(std::shared_ptr<GameEvent> event){this->m_lastEvent = event;}
         std::shared_ptr<PlayerCreature> GetPlayer(){return this->m_player;}
@@ -158,6 +157,8 @@ class AquariumGameScene : public GameScene {
         std::shared_ptr<GameEvent> m_lastEvent;
         string m_name;
         AwaitFrames updateControl{5};
+        // background music!
+        ofSoundPlayer m_ambientSound; 
 };
 
 

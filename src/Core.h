@@ -100,6 +100,13 @@ public:
     void setBounds(int w, int h);
     void normalize();
     void bounce();
+
+    void setDirection(float dx, float dy);
+    void setX(float x);
+    void setY(float y);
+
+    float getDx() const { return m_dx; }
+    float getDy() const { return m_dy; }
 };
 
 // GameEvents
