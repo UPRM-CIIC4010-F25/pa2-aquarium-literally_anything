@@ -7,7 +7,11 @@ string AquariumCreatureTypeToString(AquariumCreatureType t){
         case AquariumCreatureType::BiggerFish:
             return "BiggerFish";
         case AquariumCreatureType::NPCreature:
-            return "BaseFish";
+            return "NPCreature";
+        case AquariumCreatureType::FastFish:     
+            return "FastFish";
+        case AquariumCreatureType::ArmoredFish:  
+            return "ArmoredFish";
         default:
             return "UnknownFish";
     }
@@ -165,22 +169,65 @@ void BiggerFish::draw() const {
     this->m_sprite->draw(this->m_x, this->m_y);
 }
 
+FastFish::FastFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
+: NPCreature(x, y, speed, sprite) {
+    m_creatureType = AquariumCreatureType::FastFish;
+    m_dx = (rand() % 3 - 1);
+    m_dy = (rand() % 3 - 1);
+    normalize();
+    m_speed = std::max(1, int(m_speed * 2));
+}
+
+void FastFish::move() {
+    m_x += m_dx * m_speed;
+    m_y += m_dy * m_speed;
+    if (m_dx < 0) m_sprite->setFlipped(true); else m_sprite->setFlipped(false);
+    bounce();
+}
+
+void FastFish::draw() const {
+    ofLogVerbose() << "FastFish at (" << m_x << ", " << m_y << ") with speed " << m_speed << std::endl;
+    if (m_sprite) m_sprite->draw(m_x, m_y);
+}
+
+
+ArmoredFish::ArmoredFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
+: NPCreature(x, y, speed, sprite) {
+    m_creatureType = AquariumCreatureType::ArmoredFish;
+    m_speed = std::max(1, int(m_speed * 0.5f));
+    setCollisionRadius(getCollisionRadius() + 10.0f);
+    m_dx = (rand() % 3 - 1);
+    m_dy = (rand() % 3 - 1);
+    normalize();
+}
+
+void ArmoredFish::move() {
+    m_x += m_dx * m_speed;
+    m_y += m_dy * m_speed;
+    if (m_dx < 0) m_sprite->setFlipped(true); else m_sprite->setFlipped(false);
+    bounce();
+}
+
+void ArmoredFish::draw() const {
+    ofLogVerbose() << "ArmoredFish at (" << m_x << ", " << m_y << ") with speed " << m_speed << std::endl;
+    if (m_sprite) m_sprite->draw(m_x, m_y);
+}
 
 // AquariumSpriteManager
 AquariumSpriteManager::AquariumSpriteManager(){
-    this->m_npc_fish = std::make_shared<GameSprite>("base-fish.png", 70,70);
-    this->m_big_fish = std::make_shared<GameSprite>("bigger-fish.png", 120, 120);
+    m_npc_fish     = std::make_shared<GameSprite>("base-fish.png",    70, 70);
+    m_big_fish     = std::make_shared<GameSprite>("bigger-fish.png", 120,120);
+    m_fast_fish    = std::make_shared<GameSprite>("fast-fish.png",    70, 70);   
+    m_armored_fish = std::make_shared<GameSprite>("armored-fish.png", 90, 90);   
 }
 
 std::shared_ptr<GameSprite> AquariumSpriteManager::GetSprite(AquariumCreatureType t){
     switch(t){
-        case AquariumCreatureType::BiggerFish:
-            return std::make_shared<GameSprite>(*this->m_big_fish);
-            
-        case AquariumCreatureType::NPCreature:
-            return std::make_shared<GameSprite>(*this->m_npc_fish);
-        default:
-            return nullptr;
+        case AquariumCreatureType::BiggerFish:   return std::make_shared<GameSprite>(*m_big_fish);
+        case AquariumCreatureType::NPCreature:   return std::make_shared<GameSprite>(*m_npc_fish);
+        case AquariumCreatureType::FastFish:     return std::make_shared<GameSprite>(*m_fast_fish);     
+        case AquariumCreatureType::ArmoredFish:  return std::make_shared<GameSprite>(*m_armored_fish);  
+        default: return nullptr;
     }
 }
 
@@ -301,6 +348,15 @@ void Aquarium::SpawnCreature(AquariumCreatureType type) {
         case AquariumCreatureType::BiggerFish:
             this->addCreature(std::make_shared<BiggerFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::BiggerFish)));
             break;
+
+        case AquariumCreatureType::FastFish:
+            this->addCreature(std::make_shared<FastFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::FastFish)));
+            break;
+
+        case AquariumCreatureType::ArmoredFish:
+            this->addCreature(std::make_shared<ArmoredFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::ArmoredFish)));
+            break;
+
         default:
             ofLogError() << "Unknown creature type to spawn!";
             break;
