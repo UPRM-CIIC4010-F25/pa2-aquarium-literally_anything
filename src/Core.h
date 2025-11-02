@@ -24,7 +24,8 @@ private:
 
 class GameSprite {
 public:
-    GameSprite(const std::string& imagePath, int width, int height) {
+    GameSprite(const std::string& imagePath, int width, int height)
+    : m_width(width), m_height(height) {
         if (!m_image.load(imagePath)) {
             std::cerr << "Failed to load image: " << imagePath << std::endl;
         }
@@ -32,6 +33,8 @@ public:
         m_flippedImage = m_image;
         m_flippedImage.mirror(false, true); // Mirror horizontally
     }
+    int width() const { return getWidth(); }
+    int height() const { return getHeight(); }
 
     void draw(float x, float y) const {
         if (m_flipped) {
@@ -42,10 +45,14 @@ public:
     }
 
     void setFlipped(bool flipped) { m_flipped = flipped; }
+    int getWidth() const { return m_width; }
+    int getHeight() const { return m_height; }
 
 private:
     ofImage m_image;
     ofImage m_flippedImage;
+      int m_width;
+    int m_height; 
     bool m_flipped = false;
 };
 

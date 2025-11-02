@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Core.h"
+#include <string>
 
 
 enum class AquariumCreatureType {
@@ -12,7 +13,11 @@ enum class AquariumCreatureType {
     BiggerFish
 };
 
-string AquariumCreatureTypeToString(AquariumCreatureType t);
+class AquariumLevel;           
+class PowerUp;                 
+class AquariumSpriteManager;   
+
+std::string AquariumCreatureTypeToString(AquariumCreatureType t);
 
 class AquariumLevelPopulationNode{
     public:
@@ -25,6 +30,14 @@ class AquariumLevelPopulationNode{
         AquariumCreatureType creatureType;
         int population;
         int currentPopulation;
+
+    private: 
+
+    std::vector<std::shared_ptr<Creature>> m_creatures; 
+    std::vector<std::shared_ptr<Creature>> m_next_creatures; 
+    std::vector<std::shared_ptr<AquariumLevel>> m_aquariumlevels; 
+    std::vector<std::shared_ptr<PowerUp>> m_powerUps;  
+    std::shared_ptr<AquariumSpriteManager> m_sprite_manager;
 };
 
 class AquariumLevel : public GameLevel {
@@ -64,14 +77,19 @@ public:
 
     void addToScore(int amount, int weight = 1) { m_score += amount * weight; }
     void loseLife(int debounce);
-    void increasePower(int value) { m_power += value; }
+    void increasePower(int value);
+    void startFlash();
     void reduceDamageDebounce();
 
 private:
     int m_score = 0;
     int m_lives = 3;
-    int m_power = 1;         // current power lvl
+    int m_power = 1;         // curr power lvl
     int m_damage_debounce = 0; // frames to wait after eating
+    
+    int m_flashFrames = 0;  //  glow effect
+    std::shared_ptr<GameSprite> m_flashSprite = std::make_shared<GameSprite>("white-fish.png", 70, 70);
+    bool m_flipped = false;
 };
 
 class NPCreature : public Creature {
@@ -80,6 +98,7 @@ public:
     AquariumCreatureType GetType() {return this->m_creatureType;}
     void move() override;
     void draw() const override;
+
 protected:
     AquariumCreatureType m_creatureType;
 
@@ -103,6 +122,29 @@ class AquariumSpriteManager {
         std::shared_ptr<GameSprite> m_big_fish;
 };
 
+class PowerUp : public Creature { // MOVING OBJECT
+public:
+    enum class Type { SPEED, POWER, SIZE }; 
+
+    PowerUp(float x, float y, Type type, std::shared_ptr<GameSprite> sprite)
+        : Creature(x, y, 0, 20.0f, 0, sprite), m_type(type) {}
+
+    void move() override {
+        
+        m_y += 1.0f; 
+        if(m_y > ofGetHeight()) m_y = 0; 
+    }
+
+    void draw() const override {
+        if(m_sprite) m_sprite->draw(m_x, m_y);
+    }
+
+    Type getType() const { return m_type; }
+
+private:
+    Type m_type;
+};
+
 
 class Aquarium{
 public:
@@ -123,6 +165,14 @@ public:
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
 
+    void SpawnPowerUp(PowerUp::Type type);   
+    void removePowerUp(std::shared_ptr<PowerUp> powerUp); 
+
+
+
+    const std::vector<std::shared_ptr<PowerUp>>& GetPowerUps() const { return m_powerUps; }
+
+
 
 private:
     int m_maxPopulation = 0;
@@ -132,7 +182,9 @@ private:
     std::vector<std::shared_ptr<Creature>> m_creatures;
     std::vector<std::shared_ptr<Creature>> m_next_creatures;
     std::vector<std::shared_ptr<AquariumLevel>> m_aquariumlevels;
+    std::vector<std::shared_ptr<PowerUp>> m_powerUps; //  power upp vector
     std::shared_ptr<AquariumSpriteManager> m_sprite_manager;
+
 };
 
 
