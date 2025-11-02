@@ -15,6 +15,10 @@ enum class AquariumCreatureType {
     ArmoredFish
 };
 
+class AquariumLevel;           
+class PowerUp;                 
+class AquariumSpriteManager;   
+
 std::string AquariumCreatureTypeToString(AquariumCreatureType t);
 
 class AquariumLevelPopulationNode{
@@ -31,7 +35,7 @@ class AquariumLevelPopulationNode{
 
     private: 
 
-    std::vector<std::shared_ptr<Creature>> m_creatures; 
+    std::vector<std::shared_ptr<Creature>> m_crezatures; 
     std::vector<std::shared_ptr<Creature>> m_next_creatures; 
     std::vector<std::shared_ptr<AquariumLevel>> m_aquariumlevels; 
     std::vector<std::shared_ptr<PowerUp>> m_powerUps;  
@@ -136,6 +140,30 @@ class AquariumSpriteManager {
         std::shared_ptr<GameSprite> m_armored_fish;
 };
 
+class PowerUp : public Creature { // MOVING OBJECT
+public:
+    enum class Type { SPEED, POWER, SIZE }; 
+
+    PowerUp(float x, float y, Type type, std::shared_ptr<GameSprite> sprite)
+        : Creature(x, y, 0, 20.0f, 0, sprite), m_type(type) {}
+
+    void move() override {
+        
+        m_y += 1.0f; 
+        if(m_y > ofGetHeight()) m_y = 0; 
+    }
+
+    void draw() const override {
+        if(m_sprite) m_sprite->draw(m_x, m_y);
+    }
+
+    Type getType() const { return m_type; }
+
+private:
+    Type m_type;
+        std::shared_ptr<GameSprite> m_fast_fish;     
+        std::shared_ptr<GameSprite> m_armored_fish;
+};
 
 class Aquarium{
 public:
