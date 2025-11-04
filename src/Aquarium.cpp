@@ -129,7 +129,7 @@ void BiggerFish::draw() const {
     if (m_sprite) m_sprite->draw(m_x, m_y);
 }
 
-// ---- FastFish
+//FastFish
 FastFish::FastFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
     : NPCreature(x, y, speed, sprite)
 {
@@ -148,7 +148,7 @@ void FastFish::draw() const {
     if (m_sprite) m_sprite->draw(m_x, m_y);
 }
 
-// ---- ArmoredFish
+//ArmoredFish
 ArmoredFish::ArmoredFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
     : NPCreature(x, y, speed, sprite)
 {
@@ -232,12 +232,17 @@ static std::vector<AquariumCreatureType> RepopulateFromNodes(std::vector<std::sh
     return out;
 }
 
-// ---- Level_0..Level_4
-std::vector<AquariumCreatureType> Level_0::Repopulate() { return RepopulateFromNodes(m_levelPopulation); }
-std::vector<AquariumCreatureType> Level_1::Repopulate() { return RepopulateFromNodes(m_levelPopulation); }
-std::vector<AquariumCreatureType> Level_2::Repopulate() { return RepopulateFromNodes(m_levelPopulation); }
-std::vector<AquariumCreatureType> Level_3::Repopulate() { return RepopulateFromNodes(m_levelPopulation); }
-std::vector<AquariumCreatureType> Level_4::Repopulate() { return RepopulateFromNodes(m_levelPopulation); }
+std::vector<AquariumCreatureType> AquariumLevel::Repopulate() {
+    std::vector<AquariumCreatureType> out;
+    for (auto &node : m_levelPopulation) {
+        int need = node->population - node->currentPopulation;
+        if (need > 0) {
+            out.insert(out.end(), need, node->creatureType);
+            node->currentPopulation += need;
+        }
+    }
+    return out;
+}
 
 
 Aquarium::Aquarium(int width, int height, std::shared_ptr<AquariumSpriteManager> spriteManager)
@@ -305,6 +310,8 @@ void Aquarium::draw() const {
     for (const auto &c : m_creatures) c->draw();
     for (const auto &pu : m_powerUps) pu->draw();
 }
+
+
 
 std::shared_ptr<Creature> Aquarium::getCreatureAt(int i) {
     if (i < 0 || static_cast<size_t>(i) >= m_creatures.size()) return nullptr;
@@ -470,3 +477,24 @@ void AquariumGameScene::paintAquariumHUD() {
     ofDrawBitmapStringHighlight("Power: " + std::to_string(m_player->getPower()), 20, 60,
                                 ofColor(0,0,0,120), ofColor::yellow);
 }
+
+std::vector<AquariumCreatureType> Level_0::Repopulate() {
+    return RepopulateFromNodes(m_levelPopulation);
+}
+
+std::vector<AquariumCreatureType> Level_1::Repopulate() {
+    return RepopulateFromNodes(m_levelPopulation);
+}
+
+std::vector<AquariumCreatureType> Level_2::Repopulate() {
+    return RepopulateFromNodes(m_levelPopulation);
+}
+
+std::vector<AquariumCreatureType> Level_3::Repopulate() {
+    return RepopulateFromNodes(m_levelPopulation);
+}
+
+std::vector<AquariumCreatureType> Level_4::Repopulate() {
+    return RepopulateFromNodes(m_levelPopulation);
+}
+

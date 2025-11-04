@@ -47,7 +47,8 @@ public:
     bool isCompleted() override;
     void populationReset();
     void levelReset() { m_level_score = 0; this->populationReset(); }
-    virtual std::vector<AquariumCreatureType> Repopulate() = 0;
+    virtual std::vector<AquariumCreatureType> Repopulate();
+
 
 protected:
     std::vector<std::shared_ptr<AquariumLevelPopulationNode>> m_levelPopulation;
@@ -65,7 +66,7 @@ public:
     bool isYDirectionActive() const { return m_dy != 0; }
     void setFlipped(bool f) { m_flipped = f; }
 
-    void move();
+    void move() override;
     void draw() const override;
     void update();
     void setDirection(float dx, float dy);
