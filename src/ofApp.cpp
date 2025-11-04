@@ -1,4 +1,5 @@
 #include "ofApp.h"
+#include "Aquarium.h" 
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -40,6 +41,8 @@ void ofApp::setup(){
     myAquarium->addAquariumLevel(std::make_shared<Level_0>(0, 10));
     myAquarium->addAquariumLevel(std::make_shared<Level_1>(1, 15));
     myAquarium->addAquariumLevel(std::make_shared<Level_2>(2, 20));
+    myAquarium->addAquariumLevel(std::make_shared<Level_3>(3, 25)); // Fast fish appear
+    myAquarium->addAquariumLevel(std::make_shared<Level_4>(4, 30));
     myAquarium->Repopulate(); // initial population
 
     // now that we are mostly set, lets pass the player and the aquarium downstream
@@ -58,7 +61,8 @@ void ofApp::setup(){
         std::make_shared<GameSprite>("game-over.png", ofGetWindowWidth(), ofGetWindowHeight())
     ));
 
-    ofSetLogLevel(OF_LOG_NOTICE); // Set default log level
+    ofSetLogLevel(OF_LOG_NOTICE); 
+
 }
 
 //--------------------------------------------------------------
